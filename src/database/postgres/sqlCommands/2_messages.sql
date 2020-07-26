@@ -7,12 +7,13 @@ CREATE TABLE messages
 (
     id             SERIAL PRIMARY KEY,
     "sender"       int,
-    "receiver"       int,
-    "subject"       int,
-    "message"      VARCHAR(300),
+    "receiver"     int,
+    "subject"       VARCHAR(300) not null,
+    "message"      text,
     "creationDate" TIMESTAMPTZ default current_timestamp,
-    FOREIGN KEY (sender) REFERENCES users(id),
-    FOREIGN KEY (receiver) REFERENCES users(id)
+    "deleted"      bool default false not null,
+    "inTrash"      bool default false not null,
+    "movedToTrashDate" TIMESTAMPTZ default null
 
 );
 

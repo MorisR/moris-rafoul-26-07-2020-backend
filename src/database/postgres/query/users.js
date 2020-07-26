@@ -19,8 +19,6 @@ exports.get = async ({userId, email = ""}) => {
         return queryResult.rows[0]
 
 };
-
-
 exports.delete = async (userId) => {
 
     if (!userId)
@@ -39,10 +37,8 @@ exports.delete = async (userId) => {
         throw new Error("user not found");
 
 }
-
-
 exports.update = async (userId, fieldsToUpdate ) => {
-
+/// fieldsToUpdate = {email,password,email,firstName,lastName}
 
     if (!userId)
         throw new Error("user id must be provided")
@@ -72,8 +68,6 @@ exports.update = async (userId, fieldsToUpdate ) => {
 
     return queryResult.rows[0]
 }
-
-
 exports.add = async ({email, password, firstName, lastName}) => {
 
 
