@@ -1,4 +1,4 @@
-const buildDatabase =require("./dbBuild");
-const connection = require("./dbConnection")
+const users = require("./query/users")
+const messages = require("./query/messages")
 
-module.exports= {connection, buildDatabase};
+module.exports= {users, messages};
