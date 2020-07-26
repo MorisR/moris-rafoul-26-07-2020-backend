@@ -11,8 +11,6 @@ app.use(helmet())
 app.disable('x-powered-by');
 
 
-//todo server favicon
-//todo serve static pages if necessary
 
 
 

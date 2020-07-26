@@ -1,5 +1,4 @@
-const {buildDatabase } = require("./postgress");
+const {buildDatabase } = require("./postgres");
 
-//todo: change the path "./postgres" to an env variable value
 
 buildDatabase()
