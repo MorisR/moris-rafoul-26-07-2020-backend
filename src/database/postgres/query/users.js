@@ -1,11 +1,7 @@
 const dbConnection = require("../dbConnection")
 
 
-exports.get = async ({userId, email = ""}) => {
-
-    if (!email && !userId)
-        throw new Error("user id or email address must be provided")
-
+exports.get = async ({userId, email} = {}) => {
 
     const queryResult = await dbConnection.query(`
         select * from users 
@@ -21,10 +17,6 @@ exports.get = async ({userId, email = ""}) => {
 
 };
 exports.delete = async (userId) => {
-
-    if (!userId)
-        throw new Error("user id must be provided")
-
 
     const queryResult = await dbConnection.query(`
         update users
@@ -42,15 +34,11 @@ exports.delete = async (userId) => {
         throw new Error("user not found");
 
 }
-exports.update = async (userId, fieldsToUpdate) => {
-/// fieldsToUpdate = {email,password,email,firstName,lastName}
-
-    if (!userId)
-        throw new Error("user id must be provided")
-
+exports.update = async (userId, fieldsToUpdate={}) => {
+    /// fieldsToUpdate = {password,firstName,lastName}
 
     if (Object.keys(fieldsToUpdate).length === 0)
-        return exports.get(userId);
+        return await exports.get({userId});
 
 
     const fieldsToUpdateKeys = Object.keys(fieldsToUpdate)
@@ -71,12 +59,7 @@ exports.update = async (userId, fieldsToUpdate) => {
 
     return queryResult.rows[0]
 }
-exports.add = async ({email, password, firstName, lastName}) => {
-
-
-    if (!email || !password || !firstName || !lastName)
-        throw new Error("not all arguments were provided")
-
+exports.add = async ({email, password, firstName, lastName} = {}) => {
 
     const existingUser = await exports.get({email})
     if (existingUser)
