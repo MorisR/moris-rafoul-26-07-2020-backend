@@ -6,8 +6,10 @@ const messagesRoutes = require("./routes/messages")
 
 router.get("/messages/received", messagesRoutes.getReceived)
 router.get("/messages/sent", messagesRoutes.getSent)
-router.route("/messages/trash")
-    .get(messagesRoutes.getInTrash)
+router.post("/messages/delete/:messageId", messagesRoutes.deleteMessage)
+router.get("/messages/trash",messagesRoutes.getInTrash)
+router.post("/messages/trash/:messageId/:isTrash",messagesRoutes.setTrashState)
+
 
 
 
