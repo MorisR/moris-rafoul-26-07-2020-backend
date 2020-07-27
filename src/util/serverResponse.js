@@ -1,13 +1,13 @@
 
 
 
-exports.send= (res, {data, message,status = 200} = {})=>{
+exports.send= (res, {data, message,status = 200} )=>{
 
-    res.status(200).json({
+    res.status(status).json({
         status:status,
         data,
         message,
-        ok: true
+        ok: status<400
     })
 
 }
