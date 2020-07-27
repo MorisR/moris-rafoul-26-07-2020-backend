@@ -50,8 +50,8 @@ exports.deleteMessage = async (req, res) => {
     const {messageId} = req.params
 
     try {
-        const data = await messages.delete(userId, messageId)
-        send(res, {data})
+        await messages.delete(userId, messageId)
+        send(res, {message:"deleted successfully!"})
     } catch ({message}) {
         send(res, {message, status: 500})
     }
@@ -71,14 +71,13 @@ exports.getInTrash = async (req, res) => {
     }
 
 }
-
 exports.setTrashState = async (req, res) => {
 
     const userId = req.userId;
     let {messageId, isTrash} = req.params
 
-    if(!["true","false"].includes(isTrash))
-        return send(res, {message:"bad request, incorrect route provided ", status: 400})
+    if (!["true", "false"].includes(isTrash))
+        return send(res, {message: "bad request, incorrect route provided ", status: 400})
 
     isTrash = isTrash === "true"
 
@@ -89,7 +88,7 @@ exports.setTrashState = async (req, res) => {
         else
             await messages.removeFromTrash(userId, messageId)
 
-        send(res, {message: isTrash?"added to trash":"removed from trash"})
+        send(res, {message: isTrash ? "added to trash!" : "removed from trash!"})
 
     } catch ({message}) {
         send(res, {message, status: 500})
