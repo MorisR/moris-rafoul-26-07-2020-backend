@@ -53,7 +53,7 @@ exports.update = async (userId, fieldsToUpdate={}) => {
     `, [userId, ...fieldsToUpdateValues])
 
 
-    if (queryResult.rows.length === 0)
+    if (queryResult.rowCount === 0)
         throw new Error("user not found");
 
 
@@ -62,9 +62,9 @@ exports.update = async (userId, fieldsToUpdate={}) => {
 exports.add = async ({email, password, firstName, lastName} = {}) => {
 
     const existingUser = await exports.get({email})
+
     if (existingUser)
         throw new Error("email already in use")
-
 
     const queryResult = await dbConnection.query(`
         insert into users ("firstName", "lastName", email, password)

@@ -8,7 +8,7 @@ CREATE TABLE messages
     id             SERIAL PRIMARY KEY,
     "sender"       int,
     "receiver"     int,
-    "subject"       VARCHAR(300) not null,
+    "subject"      text not null,
     "message"      text,
     "creationDate" TIMESTAMPTZ default current_timestamp,
     "deleted"      bool default false not null,

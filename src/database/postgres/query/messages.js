@@ -1,4 +1,5 @@
 const dbConnection = require("../dbConnection")
+const usersQuery = require("./users")
 const mergeUsersWithMessageQuery = `
                        (select row_to_json(users) from users where users.id = sender limit 1)   as sender,
                        (select row_to_json(users) from users where users.id = receiver limit 1) as receiver
@@ -41,7 +42,31 @@ exports.delete = async (messageId) => {
 
     await dbConnection.query("delete from messages where id=$1", [messageId])
 };
+exports.add = async (senderId, {recipientEmail, subject, message}) => {
 
+    const senderData = await usersQuery.get({userId: senderId})
+    if (!senderData)
+        throw new Error("sender not found")
+
+
+    const recipientData = await usersQuery.get({email: recipientEmail})
+    if (!recipientData)
+        throw new Error("receiver not found")
+
+
+    const queryResult = await dbConnection.query(`
+        insert into messages (sender, receiver, subject, message)
+        values ($1, $2, $3, $4)
+        returning *`, [senderId, recipientData.id, subject, message])
+
+
+    if (queryResult.rowCount === 0)
+        throw new Error("something went wrong")
+
+
+    return queryResult.rows[0];
+
+}
 
 exports.moveToTrash = async (messageId) => {
 
@@ -63,8 +88,8 @@ exports.moveToTrash = async (messageId) => {
         returning *, ${mergeUsersWithMessageQuery}
     `, [messageId])
 
-
-    return queryResult.rows[0]
+    if (queryResult.rowCount)
+        return queryResult.rows[0]
 
 };
 exports.removeFromTrash = async (messageId) => {
@@ -80,8 +105,8 @@ exports.removeFromTrash = async (messageId) => {
         where id = $1
         returning *, ${mergeUsersWithMessageQuery}`, [messageId])
 
-
-    return queryResult.rows[0]
+    if (queryResult.rowCount)
+        return queryResult.rows[0]
 
 };
 exports.getInTrash = async (userId, {count, offset} = {}) => {
