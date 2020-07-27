@@ -4,18 +4,15 @@ const dbConnection = require('./dbConnection.js');
 
 
 
-let sqlCommandsPath = path.join(__dirname, 'sqlCommands');
+const sqlCommandsPath = path.join(__dirname, 'sqlCommands');
+
+const filesInDirectory  = fs.readdirSync(sqlCommandsPath)
+const sqlFilesInDirectory =  filesInDirectory.filter(x=> /.*\.sql$/.test(x))
+const filePaths =  sqlFilesInDirectory.map(fileName=>path.join(sqlCommandsPath, fileName))
+const filesContent = filePaths.map(path=> fs.readFileSync(path).toString()).join("\n")
 
 
-let sqlQuery = fs.readdirSync(sqlCommandsPath)
-    .filter(x=> /.*\.sql$/.test(x)) //ends with .sql
-    .map(fileName=>path.join(sqlCommandsPath, fileName)) //select all paths
-    .map(path=> fs.readFileSync(path).toString())  // read the files
-    .join("\n") // convert them to a single sql string
-
-console.log(sqlQuery)
-
-const runDbBuild = async cb => await dbConnection.query(sqlQuery, cb)
+const runDbBuild = async cb => await dbConnection.query(filesContent, cb)
 
 
 module.exports = runDbBuild;
