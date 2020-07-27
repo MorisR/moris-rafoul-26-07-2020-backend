@@ -14,7 +14,20 @@ exports.getMessage = async (req, res) => {
     }
 
 }
+exports.addMessage = async (req,res) =>{
+    const userId = req.userId;
+    const {subject,message,recipientEmail} = req.body;
 
+    try {
+        const data = await messages.add(userId, {subject,message,recipientEmail})
+        send(res, {data})
+    } catch ({message}) {
+        send(res, {message, status: 500})
+    }
+
+
+
+}
 
 exports.getReceived = async (req, res) => {
 
@@ -29,7 +42,6 @@ exports.getReceived = async (req, res) => {
     }
 
 }
-
 exports.getSent = async (req, res) => {
 
     const userId = req.userId;
@@ -43,7 +55,6 @@ exports.getSent = async (req, res) => {
     }
 
 }
-
 exports.deleteMessage = async (req, res) => {
 
     const userId = req.userId;
