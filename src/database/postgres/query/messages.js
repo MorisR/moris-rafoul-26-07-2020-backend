@@ -14,16 +14,21 @@ exports.get = async (messageId) => {
     if (!messageId)
         throw new Error("messageId must be provided")
 
-    let queryResult = await dbConnection.query(`select *
-                                                from messages
-                                                where id = $1`, [messageId])
+    let queryResult = await dbConnection.query(`
+                select *,
+                       (select json_agg(row_to_json(users)) from users where users.id = sender)   as sender,
+                       (select json_agg(row_to_json(users)) from users where users.id = receiver) as receiver
+                from messages
+                where id = $1
+        `
+        , [messageId])
 
 
     if (queryResult.rowCount === 0)
-        return ;
+        return;
 
 
-   return queryResult.rows[0];
+    return queryResult.rows[0];
 
 };
 exports.delete = async (messageId) => {
@@ -31,7 +36,7 @@ exports.delete = async (messageId) => {
     if (!messageId)
         throw new Error("user must be provided")
 
-    await dbConnection.query("delete from messages where id=$1",[messageId])
+    await dbConnection.query("delete from messages where id=$1", [messageId])
 };
 
 
@@ -49,9 +54,13 @@ exports.moveToTrash = async (messageId) => {
 
     const queryResult = await dbConnection.query(`
         update messages
-        set "inTrash" = true , "movedToTrashDate" = now()
+        set "inTrash"          = true,
+            "movedToTrashDate" = now()
         where id = $1
-        returning *`, [messageId])
+        returning *, 
+            (select json_agg(row_to_json(users) )from users where users.id = sender) as sender,
+            (select json_agg(row_to_json(users)) from users where users.id = receiver) as receiver
+    `, [messageId])
 
 
     return queryResult.rows[0]
@@ -65,7 +74,8 @@ exports.removeFromTrash = async (messageId) => {
 
     const queryResult = await dbConnection.query(`
         update messages
-        set "inTrash" = false , "movedToTrashDate" = NULL
+        set "inTrash"          = false,
+            "movedToTrashDate" = NULL
         where id = $1
         returning *`, [messageId])
 
@@ -75,11 +85,9 @@ exports.removeFromTrash = async (messageId) => {
 };
 exports.getInTrash = async (userId, {count, offset} = {}) => {
 
-    return await getMessages(userId, {count, offset,  getDeletedMessages: true})
+    return await getMessages(userId, {count, offset, getDeletedMessages: true})
 
 };
-
-
 
 
 async function getMessages(userId, {count, offset, getReceivedMessages, getSentMessages, includeInTrash, getInTrashMessages} = {}) {
@@ -87,7 +95,12 @@ async function getMessages(userId, {count, offset, getReceivedMessages, getSentM
     if (!userId)
         throw new Error("user id must be provided")
 
-    let query = " select * from messages ";
+    let query = ` select *,
+                         (select json_agg(row_to_json(users)) from users where users.id = sender)   as sender,
+                         (select json_agg(row_to_json(users)) from users where users.id = receiver) as receiver
+                  from messages `;
+
+
     let paramPos = 1;
 
     if (getReceivedMessages || getSentMessages || !includeInTrash)
@@ -120,7 +133,17 @@ async function getMessages(userId, {count, offset, getReceivedMessages, getSentM
     if (offset !== undefined)
         query += ` offset $${++paramPos} `
 
-
+    /*
+    example:
+         select *,
+          (select json_agg(row_to_json(users)) from users where users.id = sender)   as sender,
+          (select json_agg(row_to_json(users)) from users where users.id = receiver) as receiver
+         from messages
+         where "inTrash" = true and (receiver = id or sender = id )       <-- this changes based on the function arguments
+         order by "creationDate"
+         limit 3      <-- this part is optional
+         offset 3     <-- this part is optional
+     */
     const queryResult = await dbConnection.query(query,
         [
             userId,
