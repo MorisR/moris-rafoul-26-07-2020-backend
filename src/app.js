@@ -18,4 +18,4 @@ app.disable('x-powered-by');
 
 
 
-export default app;
+module.exports = app;
