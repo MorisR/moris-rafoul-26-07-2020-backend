@@ -1,6 +1,8 @@
 const dbConnection = require("../dbConnection")
 const usersQuery = require("./users")
-const mergeUsersWithMessageQuery = `
+
+
+const messageQueryToReturn = `messages.id, subject, message, "creationDate",
         (select json_build_object('id',id,'email', email,'firstName',"firstName",'lastName',"lastName")from users where users.id = receiver limit 1)   as receiver,
        (select json_build_object('id',id,'email', email,'firstName',"firstName",'lastName',"lastName")from users where users.id = sender limit 1)   as sender
                        `
@@ -16,17 +18,26 @@ exports.getSent = async (userId, {count, offset} = {}) => {
     return await getMessages(userId, {count, offset, messagesType: "sent"})
 
 };
-exports.get = async (userId,messageId) => {
+exports.getInTrash = async (userId, {count, offset} = {}) => {
 
-
-  let queryResult = await getMessages(userId, { messagesType:"messageId", messageId})
-
-    if (queryResult.length === 0)
-        return;
-
-    return queryResult[0];
-
+    return await getMessages(userId, {count, offset, messagesType: "trash"})
 };
+
+
+exports.moveToTrash = async (userId, messageId) => {
+
+    return await updateUserMessageSettingsFields(userId, messageId, {inTrash: true, addedToTrashDate: new Date()})
+};
+exports.removeFromTrash = async (userId, messageId) => {
+
+    return await updateUserMessageSettingsFields(userId, messageId, {inTrash: false})
+};
+exports.delete = async (userId, messageId) => {
+
+    return await updateUserMessageSettingsFields(userId, messageId, {isDeleted: true})
+};
+
+
 exports.add = async (senderId, {recipientEmail, subject, message}) => {
 
     const senderData = await usersQuery.get({userId: senderId})
@@ -36,13 +47,13 @@ exports.add = async (senderId, {recipientEmail, subject, message}) => {
 
     const recipientData = await usersQuery.get({email: recipientEmail})
     if (!recipientData)
-        throw new Error("receiver not found")
+        throw new Error("recipient not found")
 
 
     const queryResult = await dbConnection.query(`
         insert into messages (sender, receiver, subject, message)
         values ($1, $2, $3, $4)
-        returning *, ${mergeUsersWithMessageQuery}`, [senderId, recipientData.id, subject, message])
+        returning ${messageQueryToReturn}`, [senderId, recipientData.id, subject, message])
 
 
     if (queryResult.rowCount === 0)
@@ -53,23 +64,6 @@ exports.add = async (senderId, {recipientEmail, subject, message}) => {
 
 }
 
-exports.moveToTrash = async (userId, messageId) => {
-
-    return await setMessageSettingsForUser(userId, messageId, {inTrash: true})
-};
-exports.removeFromTrash = async (userId, messageId) => {
-
-    return await setMessageSettingsForUser(userId, messageId, {inTrash: false})
-};
-exports.getInTrash = async (userId, {count, offset} = {}) => {
-
-    return await getMessages(userId, {count, offset, messagesType: "trash"})
-};
-exports.delete = async (userId, messageId) => {
-
-    return await setMessageSettingsForUser(userId, messageId, {isDeleted: true})
-
-};
 
 async function getMessages(userId, {count, offset, messagesType, messageId} = {}) {
 
@@ -87,24 +81,23 @@ async function getMessages(userId, {count, offset, messagesType, messageId} = {}
                             and  mS."inTrash" = true`
             break;
         case "messageId":
-            filterQuery += `messages.id = ${Number(messageId)}`
+            filterQuery += `and messages.id = ${Number(messageId)}`
     }
 
 
     let query = `
-        select messages.id, subject, message, "creationDate", ${mergeUsersWithMessageQuery}
-        from messages
-                 full outer join "messagesSettings" mS on
-                (mS."userId" = messages.receiver or mS."userId" = messages.sender)
-                and mS."messageId" = messages.id
+        select ${messageQueryToReturn}  from messages
+         full outer join "messagesSettings" mS on
+            (mS."userId" = messages.receiver or mS."userId" = messages.sender)
+            and mS."messageId" = messages.id
 
 
-        --where  message attached to user settings - or not
+        --where user has message settings or user didn't modify the message settings at all
         where (mS.id is null or mS."userId" = $1)
        
-        -- where message not marked as deleted
+        -- where message is not marked as deleted
           and (not mS."deleted" or mS.id is null)
-        
+            
          ${filterQuery}
         
         order by "creationDate" desc
@@ -117,32 +110,73 @@ async function getMessages(userId, {count, offset, messagesType, messageId} = {}
 
     return queryResult.rows
 }
-async function setMessageSettingsForUser(userId, messageId, {isDeleted, inTrash}) {
+async function updateUserMessageSettingsFields(userId, messageId, fields) {
+
+    await checkIfMessageExists(userId, messageId)
+    await checkIfUserRelatedToMessage(userId, messageId)
+
+    let userMessageSettings = await getUserMessageSettings(userId, messageId)
+
+    if (!userMessageSettings)
+        userMessageSettings = await addUserMessageSettings(userId, messageId)
+
+    await updateUserMessageSettings(userMessageSettings.id, fields)
+}
 
 
-    const messageData = await exports.get(messageId)
+async function getUserMessageSettings(userId, messageId) {
 
+    const queryResult = await dbConnection.query(`select * from "messagesSettings"
+             where "userId" = $1 and "messageId" = $2`, [userId, messageId])
 
-    if (![messageData.sender, messageData.receiver].includes(userId.toString()))
-        throw new Error("user is not related to the message")
-
-
-    const {rows: userSettingsForMessage} = await dbConnection.query(
-            `select *
-             from "messagesSettings"
-             where "userId" = $1
-               and "messageId" = $2`, [userId, messageId])
-
-
-    if (userSettingsForMessage.length === 0)
-        await dbConnection.query(` INSERT INTO "messagesSettings" ("userId", "messageId", "inTrash", deleted, "addedToTrashDate")
-                                   VALUES ($1, $2, $3, $4, $5) `, [messageId, userId, messageId, inTrash, isDeleted, inTrash ? "now()" : ""])
-
-
-    else
-        await dbConnection.query(` update "messagesSettings"
-                                   set ("userId", "messageId", "inTrash", deleted, "addedToTrashDate")
-                                           = ($1, $2, $3, $4, $5) `, [messageId, userId, messageId, inTrash, isDeleted, inTrash ? "now()" : ""])
-
+    if (queryResult.rowCount !== 0)
+        return queryResult.rows[0];
 
 }
+async function addUserMessageSettings(userId, messageId) {
+
+    const queryResult = await dbConnection.query(` INSERT INTO "messagesSettings" ("userId", "messageId")
+                                                   VALUES ($1, $2)
+                                                   returning *`, [userId, messageId])
+
+    return queryResult.rows[0]
+}
+async function updateUserMessageSettings(messageSettingsId, fields = {}) {
+
+    const fieldNames = Object.keys(fields)
+    const fieldValues = fieldNames.map(key => fields[key])
+    const insertFieldsQuery = fieldNames.map((key, index) => `"${key}" = $${index + 2}`).join(" , ")
+
+
+    if (fieldNames.length === 0)
+        return;
+
+
+    await dbConnection.query(` update "messagesSettings" set ${insertFieldsQuery} 
+                              where id = $1 `, [messageSettingsId, ...fieldValues])
+
+}
+
+
+async function getMessageInfo(userId, messageId) {
+
+    let queryResult = await getMessages(userId, {messagesType: "messageId", messageId})
+
+    if (queryResult.length === 0)
+        return;
+
+    return queryResult[0];
+
+}
+async function checkIfMessageExists(userId, messageId) {
+    const messageData = await getMessageInfo(userId, messageId)
+    if (!messageData)
+        throw new Error("message does not exist or might have been deleted")
+}
+async function checkIfUserRelatedToMessage(userId, messageId) {
+    const messageData = await getMessageInfo(userId, messageId)
+    if (![messageData.sender.id, messageData.receiver.id].includes(userId))
+        throw new Error("user is not related to the message")
+
+}
+
