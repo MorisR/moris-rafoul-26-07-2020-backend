@@ -32,15 +32,16 @@ const  usersSchema_delete = Joi.object({
 
 
 //function schemas
-const  messagesSchema_getCountOffset = Joi.object({
+const  messagesSchema_messageId_count_offset = Joi.object({
     userId: idSchema,
     props: Joi.object({
         count: Joi.number().integer().min(0),
         offset: Joi.number().integer().min(0),
     })
 })
-const  messagesSchema_messageId = Joi.object({
-    messageId: idSchema
+const  messagesSchema_userId_messageId = Joi.object({
+    messageId: idSchema,
+    userId: idSchema,
 
 })
 const  messagesSchema_add = Joi.object({
@@ -59,9 +60,9 @@ const  messagesSchema_add = Joi.object({
 
 
 exports.messagesSchema = {
-    messageId:  messagesSchema_messageId,
+    userId_messageId:  messagesSchema_userId_messageId,
     add:  messagesSchema_add,
-    getCountOffset:  messagesSchema_getCountOffset,
+    messageId_count_offset:  messagesSchema_messageId_count_offset,
 }
 
 

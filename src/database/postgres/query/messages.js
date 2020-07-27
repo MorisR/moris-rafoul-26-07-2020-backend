@@ -1,46 +1,31 @@
 const dbConnection = require("../dbConnection")
 const usersQuery = require("./users")
 const mergeUsersWithMessageQuery = `
-                       (select row_to_json(users) from users where users.id = sender limit 1)   as sender,
-                       (select row_to_json(users) from users where users.id = receiver limit 1) as receiver
+        (select json_build_object('id',id,'email', email,'firstName',"firstName",'lastName',"lastName")from users where users.id = receiver limit 1)   as receiver,
+       (select json_build_object('id',id,'email', email,'firstName',"firstName",'lastName',"lastName")from users where users.id = sender limit 1)   as sender
                        `
 
 
 exports.getReceived = async (userId, {count, offset} = {}) => {
 
-    return await getMessages(userId, {count, offset, getReceivedMessages: true})
+    return await getMessages(userId, {count, offset, messagesType: "received"})
 
 };
 exports.getSent = async (userId, {count, offset} = {}) => {
 
-    return await getMessages(userId, {count, offset, getSentMessages: true})
+    return await getMessages(userId, {count, offset, messagesType: "sent"})
 
 };
-exports.get = async (messageId) => {
-    if (!messageId)
-        throw new Error("messageId must be provided")
-
-    let queryResult = await dbConnection.query(`
-                select *, ${mergeUsersWithMessageQuery}
-                from messages
-                where id = $1
-        `
-        , [messageId])
+exports.get = async (userId,messageId) => {
 
 
-    if (queryResult.rowCount === 0)
+  let queryResult = await getMessages(userId, { messagesType:"messageId", messageId})
+
+    if (queryResult.length === 0)
         return;
 
+    return queryResult[0];
 
-    return queryResult.rows[0];
-
-};
-exports.delete = async (messageId) => {
-
-    if (!messageId)
-        throw new Error("user must be provided")
-
-    await dbConnection.query("delete from messages where id=$1", [messageId])
 };
 exports.add = async (senderId, {recipientEmail, subject, message}) => {
 
@@ -57,7 +42,7 @@ exports.add = async (senderId, {recipientEmail, subject, message}) => {
     const queryResult = await dbConnection.query(`
         insert into messages (sender, receiver, subject, message)
         values ($1, $2, $3, $4)
-        returning *`, [senderId, recipientData.id, subject, message])
+        returning *, ${mergeUsersWithMessageQuery}`, [senderId, recipientData.id, subject, message])
 
 
     if (queryResult.rowCount === 0)
@@ -68,114 +53,96 @@ exports.add = async (senderId, {recipientEmail, subject, message}) => {
 
 }
 
-exports.moveToTrash = async (messageId) => {
+exports.moveToTrash = async (userId, messageId) => {
 
-    if (!messageId)
-        throw new Error("user must be provided")
-
-
-    const message = await exports.get(messageId)
-
-    if (message["inTrash"])
-        return message;
-
-
-    const queryResult = await dbConnection.query(`
-        update messages
-        set "inTrash"          = true,
-            "movedToTrashDate" = now()
-        where id = $1
-        returning *, ${mergeUsersWithMessageQuery}
-    `, [messageId])
-
-    if (queryResult.rowCount)
-        return queryResult.rows[0]
-
+    return await setMessageSettingsForUser(userId, messageId, {inTrash: true})
 };
-exports.removeFromTrash = async (messageId) => {
+exports.removeFromTrash = async (userId, messageId) => {
 
-    if (!messageId)
-        throw new Error("user must be provided")
-
-
-    const queryResult = await dbConnection.query(`
-        update messages
-        set "inTrash"          = false,
-            "movedToTrashDate" = NULL
-        where id = $1
-        returning *, ${mergeUsersWithMessageQuery}`, [messageId])
-
-    if (queryResult.rowCount)
-        return queryResult.rows[0]
-
+    return await setMessageSettingsForUser(userId, messageId, {inTrash: false})
 };
 exports.getInTrash = async (userId, {count, offset} = {}) => {
 
-    return await getMessages(userId, {count, offset, getDeletedMessages: true})
+    return await getMessages(userId, {count, offset, messagesType: "trash"})
+};
+exports.delete = async (userId, messageId) => {
+
+    return await setMessageSettingsForUser(userId, messageId, {isDeleted: true})
 
 };
 
-
-async function getMessages(userId, {count, offset, getReceivedMessages, getSentMessages, includeInTrash, getInTrashMessages} = {}) {
-
-    if (!userId)
-        throw new Error("user id must be provided")
-
-    let query = ` select *,${mergeUsersWithMessageQuery}
-                  from messages `;
+async function getMessages(userId, {count, offset, messagesType, messageId} = {}) {
 
 
-    let paramPos = 1;
+    let filterQuery = ""
+    switch (messagesType) {
+        case "sent":
+            filterQuery += `and sender = $1 `
+            break;
+        case "received":
+            filterQuery += `and receiver = $1 `
+            break;
+        case "trash":
+            filterQuery += `and (receiver = $1 or sender = $1)
+                            and  mS."inTrash" = true`
+            break;
+        case "messageId":
+            filterQuery += `messages.id = ${Number(messageId)}`
+    }
 
-    if (getReceivedMessages || getSentMessages || !includeInTrash)
-        query += " where "
 
-    if (getReceivedMessages && getSentMessages)
-        query += " ( ";
+    let query = `
+        select messages.id, subject, message, "creationDate", ${mergeUsersWithMessageQuery}
+        from messages
+                 full outer join "messagesSettings" mS on
+                (mS."userId" = messages.receiver or mS."userId" = messages.sender)
+                and mS."messageId" = messages.id
 
-    if (getReceivedMessages)
-        query += ` receiver = $${paramPos} `
+
+        --where  message attached to user settings - or not
+        where (mS.id is null or mS."userId" = $1)
+       
+        -- where message not marked as deleted
+          and (not mS."deleted" or mS.id is null)
+        
+         ${filterQuery}
+        
+        order by "creationDate" desc
+
+        limit $2 offset $3 `;
 
 
-    if (getReceivedMessages && getSentMessages)
-        query += " or ";
-
-    if (getSentMessages)
-        query += ` sender = $${paramPos} `
-
-    if (getReceivedMessages && getSentMessages)
-        query += " ) ";
-
-    if (!getInTrashMessages)
-        query += `and deleted = $${++paramPos} `
-
-    query += `order by "creationDate" desc `
-
-    if (count !== undefined)
-        query += ` limit $${++paramPos} `
-
-    if (offset !== undefined)
-        query += ` offset $${++paramPos} `
-
-    /*
-    example:
-         select *,
-          (select json_agg(row_to_json(users)) from users where users.id = sender)   as sender,
-          (select json_agg(row_to_json(users)) from users where users.id = receiver) as receiver
-         from messages
-         where "inTrash" = true and (receiver = id or sender = id )       <-- this changes based on the function arguments
-         order by "creationDate"
-         limit 3      <-- this part is optional
-         offset 3     <-- this part is optional
-     */
-    const queryResult = await dbConnection.query(query,
-        [
-            userId,
-            includeInTrash ? undefined : getInTrashMessages ? "true" : "false",
-            count,
-            offset
-        ].filter(element => element));
+    const queryResult = await dbConnection.query(query, [userId, count, offset]);
 
 
     return queryResult.rows
+}
+async function setMessageSettingsForUser(userId, messageId, {isDeleted, inTrash}) {
+
+
+    const messageData = await exports.get(messageId)
+
+
+    if (![messageData.sender, messageData.receiver].includes(userId.toString()))
+        throw new Error("user is not related to the message")
+
+
+    const {rows: userSettingsForMessage} = await dbConnection.query(
+            `select *
+             from "messagesSettings"
+             where "userId" = $1
+               and "messageId" = $2`, [userId, messageId])
+
+
+    if (userSettingsForMessage.length === 0)
+        await dbConnection.query(` INSERT INTO "messagesSettings" ("userId", "messageId", "inTrash", deleted, "addedToTrashDate")
+                                   VALUES ($1, $2, $3, $4, $5) `, [messageId, userId, messageId, inTrash, isDeleted, inTrash ? "now()" : ""])
+
+
+    else
+        await dbConnection.query(` update "messagesSettings"
+                                   set ("userId", "messageId", "inTrash", deleted, "addedToTrashDate")
+                                           = ($1, $2, $3, $4, $5) `, [messageId, userId, messageId, inTrash, isDeleted, inTrash ? "now()" : ""])
+
+
 }

@@ -5,25 +5,25 @@ const {validateInputs,messagesSchema} = require("../../util/inputValidators");
 
 exports.getReceived = async (userId, {count, offset} = {}) => {
 
-    validateInputs( {userId, props: {count, offset}}, messagesSchema.getCountOffset)
+    validateInputs( {userId, props: {count, offset}}, messagesSchema.messageId_count_offset)
     return await messages.getReceived(userId, {count, offset});
 }
 
 exports.getSent = async (userId, {count, offset} = {}) => {
-    validateInputs( {userId, props: {count, offset}}, messagesSchema.getCountOffset)
+    validateInputs( {userId, props: {count, offset}}, messagesSchema.messageId_count_offset)
     return await messages.getSent(userId, {count, offset})
 }
 
-exports.get = async (messageId) => {
+exports.get = async (userId, messageId) => {
 
-    validateInputs( {messageId}, messagesSchema.messageId)
+    validateInputs( {messageId}, messagesSchema.userId_messageId)
     return await messages.get(messageId);
 }
 
-exports.delete = async (messageId) => {
+exports.delete = async (userId,messageId) => {
 
-    validateInputs( {messageId}, messagesSchema.messageId)
-    return await messages.delete(messageId);
+    validateInputs({userId, messageId}, messagesSchema.userId_messageId)
+    return await messages.delete(userId, messageId);
 }
 
 exports.add = async (senderId, {recipientEmail, subject, message}) => {
@@ -33,20 +33,20 @@ exports.add = async (senderId, {recipientEmail, subject, message}) => {
     return await messages.add(senderId, {recipientEmail, subject, message});
 }
 
-exports.moveToTrash = async (messageId) => {
+exports.moveToTrash = async (userId,messageId) => {
 
-    validateInputs( {messageId}, messagesSchema.messageId)
-    return await messages.moveToTrash(messageId);
+    validateInputs( {userId,messageId}, messagesSchema.userId_messageId)
+    return await messages.moveToTrash(userId,messageId);
 }
 
-exports.removeFromTrash = async (messageId) => {
+exports.removeFromTrash = async (userId,messageId) => {
 
-    validateInputs( {messageId}, messagesSchema.messageId)
-    return await messages.removeFromTrash(messageId);
+    validateInputs( {userId,messageId}, messagesSchema.userId_messageId)
+    return await messages.removeFromTrash(userId,messageId);
 }
 
 exports.getInTrash = async (userId, {count, offset} = {}) => {
 
-    validateInputs( {userId, props: {count, offset}}, messagesSchema.getCountOffset)
+    validateInputs( {userId, props: {count, offset}}, messagesSchema.messageId_count_offset)
     return await messages.getInTrash(userId, {count, offset});
 }
