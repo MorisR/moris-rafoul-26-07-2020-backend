@@ -26,15 +26,15 @@ exports.getInTrash = async (userId, {count, offset} = {}) => {
 
 exports.moveToTrash = async (userId, messageId) => {
 
-    return await updateUserMessageSettingsFields(userId, messageId, {inTrash: true, addedToTrashDate: new Date()})
+    await updateUserMessageSettingsFields(userId, messageId, {inTrash: true, addedToTrashDate: new Date()})
 };
 exports.removeFromTrash = async (userId, messageId) => {
 
-    return await updateUserMessageSettingsFields(userId, messageId, {inTrash: false})
+    await updateUserMessageSettingsFields(userId, messageId, {inTrash: false})
 };
 exports.delete = async (userId, messageId) => {
 
-    return await updateUserMessageSettingsFields(userId, messageId, {isDeleted: true})
+    await updateUserMessageSettingsFields(userId, messageId, {isDeleted: true})
 };
 
 
