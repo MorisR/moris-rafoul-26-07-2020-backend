@@ -9,7 +9,7 @@ CREATE TABLE messages
     "sender"       int,
     "receiver"     int,
     "subject"      text not null,
-    "message"      text,
+    "message"      text default '',
     "creationDate" TIMESTAMPTZ default current_timestamp,
     "deleted"      bool default false not null,
     "inTrash"      bool default false not null,
