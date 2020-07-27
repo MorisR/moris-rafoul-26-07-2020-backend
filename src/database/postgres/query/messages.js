@@ -1,4 +1,9 @@
 const dbConnection = require("../dbConnection")
+const mergeUsersWithMessageQuery = `
+                       (select row_to_json(users) from users where users.id = sender limit 1)   as sender,
+                       (select row_to_json(users) from users where users.id = receiver limit 1) as receiver
+                       `
+
 
 exports.getReceived = async (userId, {count, offset} = {}) => {
 
@@ -15,9 +20,7 @@ exports.get = async (messageId) => {
         throw new Error("messageId must be provided")
 
     let queryResult = await dbConnection.query(`
-                select *,
-                       (select json_agg(row_to_json(users)) from users where users.id = sender)   as sender,
-                       (select json_agg(row_to_json(users)) from users where users.id = receiver) as receiver
+                select *, ${mergeUsersWithMessageQuery}
                 from messages
                 where id = $1
         `
@@ -57,9 +60,7 @@ exports.moveToTrash = async (messageId) => {
         set "inTrash"          = true,
             "movedToTrashDate" = now()
         where id = $1
-        returning *, 
-            (select json_agg(row_to_json(users) )from users where users.id = sender) as sender,
-            (select json_agg(row_to_json(users)) from users where users.id = receiver) as receiver
+        returning *, ${mergeUsersWithMessageQuery}
     `, [messageId])
 
 
@@ -77,7 +78,7 @@ exports.removeFromTrash = async (messageId) => {
         set "inTrash"          = false,
             "movedToTrashDate" = NULL
         where id = $1
-        returning *`, [messageId])
+        returning *, ${mergeUsersWithMessageQuery}`, [messageId])
 
 
     return queryResult.rows[0]
@@ -95,9 +96,7 @@ async function getMessages(userId, {count, offset, getReceivedMessages, getSentM
     if (!userId)
         throw new Error("user id must be provided")
 
-    let query = ` select *,
-                         (select json_agg(row_to_json(users)) from users where users.id = sender)   as sender,
-                         (select json_agg(row_to_json(users)) from users where users.id = receiver) as receiver
+    let query = ` select *,${mergeUsersWithMessageQuery}
                   from messages `;
 
 
