@@ -13,8 +13,9 @@ CREATE TABLE messages
     "creationDate" TIMESTAMPTZ default current_timestamp,
     "deleted"      bool default false not null,
     "inTrash"      bool default false not null,
-    "movedToTrashDate" TIMESTAMPTZ default null
-
+    "movedToTrashDate" TIMESTAMPTZ default null,
+    FOREIGN KEY (sender) REFERENCES users(id),
+    FOREIGN KEY (receiver) REFERENCES users(id)
 );
 
 
