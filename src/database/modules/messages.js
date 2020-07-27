@@ -28,7 +28,7 @@ exports.delete = async (userId,messageId) => {
 
 exports.add = async (senderId, {recipientEmail, subject, message}) => {
 
-    validateInputs( {senderId, props:{recipientEmail, subject, message}}, messagesSchema.add)
+    validateInputs( {senderId,recipientEmail, subject, message}, messagesSchema.add)
 
     return await messages.add(senderId, {recipientEmail, subject, message});
 }
