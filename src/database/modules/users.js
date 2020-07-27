@@ -1,4 +1,4 @@
-const {users} = require("../postgres")
+const {query: {users}} = require("../postgres")
 const {validateInputs,usersSchema} = require("../../util/inputValidators");
 
 

@@ -1,4 +1,4 @@
-const {messages} = require("../postgres")
+const {query: {messages}} = require("../postgres")
 const {validateInputs,messagesSchema} = require("../../util/inputValidators");
 
 

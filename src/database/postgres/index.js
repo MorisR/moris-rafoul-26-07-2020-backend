@@ -1,4 +1,5 @@
 const users = require("./query/users")
 const messages = require("./query/messages")
+const buildDatabase = require("./dbBuild")
 
-module.exports= {users, messages};
+module.exports= {query:{users, messages}, buildDatabase};
