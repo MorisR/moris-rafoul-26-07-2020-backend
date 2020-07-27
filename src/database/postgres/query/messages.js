@@ -38,6 +38,11 @@ exports.delete = async (userId, messageId) => {
 };
 
 
+exports.get = async (userId, messageId) => {
+    await checkIfMessageExists(userId, messageId);
+    await checkIfUserRelatedToMessage(userId, messageId);
+    return await getMessageInfo(userId, messageId);
+}
 exports.add = async (senderId, {recipientEmail, subject, message}) => {
 
     const senderData = await usersQuery.get({userId: senderId})

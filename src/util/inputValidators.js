@@ -1,7 +1,7 @@
 const Joi = require('@hapi/joi');
 
 //input validators
-const idSchema = [Joi.number().required(), Joi.string().required()]
+const idSchema = Joi.alternatives().try(Joi.string(), Joi.number()).required()
 const nameSchema = Joi.string().trim().pattern(/^[A-Za-z0-9\s]+$/, "letters, numbers and spaces")
 const passwordSchema = Joi.string().pattern(/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[^0-9^a-z^A-Z]).{6,}$/, "strong password")
 

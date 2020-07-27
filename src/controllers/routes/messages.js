@@ -1,6 +1,21 @@
 const {send} = require("../../util/serverResponse");
 const {messages} = require("../../database/modules")
 
+exports.getMessage = async (req, res) => {
+
+    const userId = req.userId;
+    const {messageId} = req.params
+
+    try {
+        const data = await messages.get(userId, messageId)
+        send(res, {data})
+    } catch ({message}) {
+        send(res, {message, status: 500})
+    }
+
+}
+
+
 exports.getReceived = async (req, res) => {
 
     const userId = req.userId;

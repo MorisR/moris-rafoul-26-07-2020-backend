@@ -16,8 +16,8 @@ exports.getSent = async (userId, {count, offset} = {}) => {
 
 exports.get = async (userId, messageId) => {
 
-    validateInputs( {messageId}, messagesSchema.userId_messageId)
-    return await messages.get(messageId);
+    validateInputs( {userId, messageId}, messagesSchema.userId_messageId)
+    return await messages.get(userId, messageId);
 }
 
 exports.delete = async (userId,messageId) => {
