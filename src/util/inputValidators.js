@@ -2,16 +2,26 @@ const Joi = require('@hapi/joi');
 
 //input validators
 const idSchema = Joi.alternatives().try(Joi.string(), Joi.number())
-const nameSchema = Joi.string().trim().pattern(/^[A-Za-z0-9\s]+$/, "letters, numbers and spaces")
-const passwordSchema = Joi.string().pattern(/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[^0-9^a-z^A-Z]).{6,}$/, "strong password")
+
+const nameSchema = Joi.string().trim()
+    .pattern(/^[A-Za-z0-9\s]+$/).message("names can only contain letters, numbers and spaces")
+
+const passwordSchema = Joi.string()
+    .min(8)
+    .pattern(/(?=.*?[a-z])/).message("\"password\" must include one small letter")
+    .pattern(/(?=.*?[A-Z])/).message("\"password\" must include one capital letter")
+    .pattern(/(?=.*?[0-9])/).message("\"password\" must include one number")
+    .pattern(/(?=.*?[^0-9^a-z^A-Z])/).message("\"password\" must include one symbol")
+
+const emailSchema = Joi.string().email();
 
 //function schemas
 const usersSchema_get = Joi.object({
     userId: idSchema,
-    email: Joi.string().email()
+    email: emailSchema
 })
 const usersSchema_add = Joi.object({
-    email: Joi.string().email().required(),
+    email: emailSchema.required(),
     password: passwordSchema.required(),
     firstName: nameSchema.required(),
     lastName: nameSchema.required()
@@ -57,14 +67,11 @@ exports.messagesSchema = {
     add: messagesSchema_add,
     messageId_count_offset: messagesSchema_messageId_count_offset,
 }
-
-
 exports.usersSchema = {
     get: usersSchema_get,
     add: usersSchema_add,
     update: usersSchema_update,
     delete: usersSchema_delete
 }
-
 exports.validateInputs = (args = {}, schema) => Joi.attempt(args, schema);
 
