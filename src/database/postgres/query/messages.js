@@ -76,14 +76,13 @@ async function getMessages(userId, {count, offset, messagesType, messageId} = {}
     let filterQuery = ""
     switch (messagesType) {
         case "sent":
-            filterQuery += `and sender = $1 `
+            filterQuery += `and sender = $1 and (not mS."inTrash" or mS.id is null)`
             break;
         case "received":
-            filterQuery += `and receiver = $1 `
+            filterQuery += `and receiver = $1 and (not mS."inTrash" or mS.id is null)`
             break;
         case "trash":
-            filterQuery += `and (receiver = $1 or sender = $1)
-                            and  mS."inTrash" = true`
+            filterQuery += `and (receiver = $1 or sender = $1) and  mS."inTrash" = true`
             break;
         case "messageId":
             filterQuery += `and messages.id = ${Number(messageId)}`
