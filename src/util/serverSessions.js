@@ -29,7 +29,7 @@ exports.hasSessionExpired = (req) => {
     if (!req.session.expDate || !req.session.creationTime)
         return true;
 
-    const sessionCreationDate = moment.duration(req.session.creationTime, "millisecond")
+    const sessionCreationDate = moment(req.session.creationTime)
     sessionCreationDate.add(req.session.expDate,"millisecond")
 
     return sessionCreationDate.isBefore(moment.now())
