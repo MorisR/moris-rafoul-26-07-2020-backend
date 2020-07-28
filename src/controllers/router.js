@@ -14,8 +14,9 @@ router.post("/messages/trash/:messageId/:isTrash",messagesRoutes.setTrashState)
 router.get("/messages/:messageId", messagesRoutes.getMessage)
 
 
-router.post("/auth/login",authRoutes.postLogin)
+router.post("/auth/login",authRoutes.login)
 router.get("/auth/currentUser",authRoutes.getCurrentUserData )
+router.get("/auth/logout",authRoutes.logout )
 
 
 

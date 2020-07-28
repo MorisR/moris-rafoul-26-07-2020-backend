@@ -2,7 +2,7 @@ const {users: usersModule} = require("../../database/modules")
 const {send} = require("../../util/serverResponse");
 const sessions = require("../../util/serverSessions");
 
-exports.postLogin = async (req, res) => {
+exports.login = async (req, res) => {
 
     const {email, password} = req.body;
 
@@ -28,4 +28,8 @@ exports.getCurrentUserData = async (req, res) => {
         send(res, {message, status: 401})
     }
 
+}
+exports.logout =  async (req, res) =>{
+    sessions.clearSession(req);
+    send(res, {message:"logged out successfully!"})
 }
