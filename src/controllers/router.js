@@ -3,26 +3,30 @@ const router = express.Router();
 
 const messagesRoutes = require("./routes/messages")
 const authRoutes = require("./routes/auth")
+const requireLogin = require("./middleware/requireLogin")
+const loadUserIdFromSession = require("./middleware/loadUserIdFromSession")
 
 
-router.get("/messages/received", messagesRoutes.getReceived)
-router.get("/messages/sent", messagesRoutes.getSent)
-router.get("/messages/trash",messagesRoutes.getInTrash)
-router.post("/messages",messagesRoutes.addMessage)
-router.post("/messages/delete/:messageId", messagesRoutes.deleteMessage)
-router.post("/messages/trash/:messageId/:isTrash",messagesRoutes.setTrashState)
-router.get("/messages/:messageId", messagesRoutes.getMessage)
+router.use(loadUserIdFromSession)
 
 
-router.post("/auth/login",authRoutes.login)
-router.get("/auth/currentUser",authRoutes.getCurrentUserData )
-router.get("/auth/logout",authRoutes.logout )
-
-
-
+const messagesRouter = express.Router();
+messagesRouter.get("/received", messagesRoutes.getReceived)
+messagesRouter.get("/sent", messagesRoutes.getSent)
+messagesRouter.get("/trash", messagesRoutes.getInTrash)
+messagesRouter.post("/",messagesRoutes.addMessage)
+messagesRouter.post("/delete/:messageId", messagesRoutes.deleteMessage)
+messagesRouter.post("/trash/:messageId/:isTrash",messagesRoutes.setTrashState)
+messagesRouter.get("/:messageId", messagesRoutes.getMessage)
+router.use("/messages",requireLogin, messagesRouter)
 
 
 
+const authRouter = express.Router();
+authRouter.post("/login",authRoutes.login)
+authRouter.get("/currentUser",requireLogin,authRoutes.getCurrentUserData )
+authRouter.get("/logout",authRoutes.logout )
+router.use("/auth",authRouter)
 
 
 
