@@ -1,7 +1,7 @@
 const Joi = require('@hapi/joi');
 
 //input validators
-const idSchema = Joi.alternatives().try(Joi.string(), Joi.number()).required()
+const idSchema = Joi.alternatives().try(Joi.string(), Joi.number())
 const nameSchema = Joi.string().trim().pattern(/^[A-Za-z0-9\s]+$/, "letters, numbers and spaces")
 const passwordSchema = Joi.string().pattern(/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[^0-9^a-z^A-Z]).{6,}$/, "strong password")
 
@@ -18,7 +18,7 @@ const usersSchema_add = Joi.object({
 
 })
 const usersSchema_update = Joi.object({
-    userId: idSchema,
+    userId: idSchema.required(),
     fieldsToUpdate: Joi.object({
         password: passwordSchema,
         firstName: nameSchema,
@@ -26,25 +26,25 @@ const usersSchema_update = Joi.object({
     })
 })
 const usersSchema_delete = Joi.object({
-    userId: idSchema
+    userId: idSchema.required()
 })
 
 
 //function schemas
 const messagesSchema_messageId_count_offset = Joi.object({
-    userId: idSchema,
+    userId: idSchema.required(),
     props: Joi.object({
         count: Joi.number().integer().min(0),
         offset: Joi.number().integer().min(0),
     })
 })
 const messagesSchema_userId_messageId = Joi.object({
-    messageId: idSchema,
-    userId: idSchema,
+    messageId: idSchema.required(),
+    userId: idSchema.required(),
 
 })
 const messagesSchema_add = Joi.object({
-    senderId: idSchema,
+    senderId: idSchema.required(),
     recipientEmail: Joi.string().email().required(),
     subject: Joi.string().required(),
     message: Joi.string()
