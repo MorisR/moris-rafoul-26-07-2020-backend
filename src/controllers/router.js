@@ -3,6 +3,7 @@ const router = express.Router();
 
 const messagesRoutes = require("./routes/messages")
 const authRoutes = require("./routes/auth")
+const errorHandlingRoutes = require("./routes/errorHandling")
 const requireLogin = require("./middleware/requireLogin")
 const loadUserIdFromSession = require("./middleware/loadUserIdFromSession")
 const updateSessionExpDate = require("./middleware/updateSessionExpDate")
@@ -31,6 +32,10 @@ authRouter.get("/logout",authRoutes.logout )
 authRouter.post("/register",authRoutes.register)
 router.use("/auth",authRouter)
 
+
+
+router.use(errorHandlingRoutes.notFound)
+router.use(errorHandlingRoutes.serverError)
 
 
 module.exports = router;
