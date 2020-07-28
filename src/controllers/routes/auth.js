@@ -5,9 +5,11 @@ const hashPassword = require("../../util/hashPassword");
 
 exports.login = async (req, res) => {
 
-    const {email, password} = req.body;
+    let {email, password} = req.body;
 
-    try {
+    try
+    {
+        password = await hashPassword(password)
         const userData = await usersModule.validateCredentials(email, password)
         sessions.createSession(req, {userId: userData.id})
         send(res, {message: "logged in successfully!"})
