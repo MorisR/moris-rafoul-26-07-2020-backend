@@ -16,6 +16,10 @@ exports.login = async (req, res) => {
     }
 
 }
+exports.logout =  async (req, res) =>{
+    sessions.clearSession(req);
+    send(res, {message:"logged out successfully!"})
+}
 exports.getCurrentUserData = async (req, res) => {
 
     const userId = sessions.getSession(req).userId
@@ -28,8 +32,4 @@ exports.getCurrentUserData = async (req, res) => {
         send(res, {message, status: 401})
     }
 
-}
-exports.logout =  async (req, res) =>{
-    sessions.clearSession(req);
-    send(res, {message:"logged out successfully!"})
 }
