@@ -34,7 +34,7 @@ exports.delete = async (userId) => {
         throw new Error("user not found");
 
 }
-exports.update = async (userId, fieldsToUpdate={}) => {
+exports.update = async (userId, fieldsToUpdate = {}) => {
     /// fieldsToUpdate = {password,firstName,lastName}
 
     if (Object.keys(fieldsToUpdate).length === 0)
@@ -67,7 +67,7 @@ exports.add = async ({email, password, firstName, lastName} = {}) => {
         throw new Error("email already in use")
 
     const queryResult = await dbConnection.query(`
-        insert into users ("firstName", "lastName", email, password)
+        insert into users (email, password, "firstName", "lastName")
         values ($1, $2, $3, $4)
         returning *
     `, [email, password, firstName, lastName].filter(x => x))

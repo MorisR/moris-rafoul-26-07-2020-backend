@@ -28,6 +28,7 @@ const authRouter = express.Router();
 authRouter.post("/login",authRoutes.login)
 authRouter.get("/currentUser",requireLogin,authRoutes.getCurrentUserData )
 authRouter.get("/logout",authRoutes.logout )
+authRouter.post("/register",authRoutes.register)
 router.use("/auth",authRouter)
 
 

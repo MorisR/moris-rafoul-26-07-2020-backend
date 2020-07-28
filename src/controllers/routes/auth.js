@@ -33,3 +33,18 @@ exports.getCurrentUserData = async (req, res) => {
     }
 
 }
+exports.register = async (req,res) =>{
+
+    const {email, password,firstName,lastName} = req.body;
+
+    try {
+        const userData = await usersModule.add({email, password,firstName,lastName})
+        sessions.createSession(req, {userId: userData.id})
+        send(res, {message: "logged in successfully!"})
+
+    } catch ({message}) {
+        send(res, {message, status: 401})
+    }
+
+
+}
