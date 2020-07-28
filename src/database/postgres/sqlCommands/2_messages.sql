@@ -21,8 +21,8 @@ DROP TABLE IF EXISTS "messagesSettings" CASCADE;
 CREATE TABLE "messagesSettings"
 (
     id               SERIAL PRIMARY KEY,
-    "userId"         int,
-    "messageId"      int,
+    "userId"         int not null,
+    "messageId"      int not null,
     "inTrash"          bool default false,
     deleted          bool default false,
     "addedToTrashDate" timestamptz,
