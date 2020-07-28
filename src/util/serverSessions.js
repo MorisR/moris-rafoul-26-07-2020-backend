@@ -1,4 +1,5 @@
 const moment = require("moment")
+const {getAndRequireEnvVar} = require("./envCheck")
 
 
 exports.createSession = (req, toStoreInCookie = {}) => {
@@ -36,9 +37,8 @@ exports.hasSessionExpired = (req) => {
 
 }
 
-let sessionAgeInSeconds = process.env.SESSION_AGE_SECONDS
-if (!sessionAgeInSeconds)
-    throw new Error("SESSION_AGE_SECONDS must be set as an environment variable")
+
+let sessionAgeInSeconds = getAndRequireEnvVar("SESSION_AGE_SECONDS")
 sessionAgeInSeconds = parseInt(sessionAgeInSeconds)
 
 

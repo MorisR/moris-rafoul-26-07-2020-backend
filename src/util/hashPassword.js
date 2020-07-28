@@ -1,10 +1,7 @@
 const bcrypt = require("bcrypt")
+const {getAndRequireEnvVar} = require("./envCheck")
 
-let hashSaltRounds = process.env.HASH_PASSWORD_SOLTS_ROUNDS
-
-if (!hashSaltRounds)
-    throw new Error("SESSION_AGE_SECONDS must be set as an environment variable")
-
+let hashSaltRounds = getAndRequireEnvVar("HASH_PASSWORD_SALTS_ROUNDS")
 hashSaltRounds = parseInt(hashSaltRounds)
 
 
