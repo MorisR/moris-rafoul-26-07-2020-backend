@@ -45,6 +45,15 @@ exports.validateCredentials = async (email, password) => {
 
     return filterUserData(userData)
 }
+exports.validateRegisterCredentials = async ({email, password, firstName, lastName}) => {
+    const userData = await users.get({email})
+
+    if (userData)
+        throw new Error("email already in use")
+
+    validateInputs({email, password, firstName, lastName}, usersSchema.add)
+
+}
 
 function filterUserData(userData) {
 

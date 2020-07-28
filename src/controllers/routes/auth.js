@@ -39,10 +39,10 @@ exports.register = async (req, res) => {
     let  {email, password, firstName, lastName} = req.body;
 
     try {
+        await usersModule.validateRegisterCredentials({email, password, firstName, lastName})
         password = await hashPassword(password)
-        const userData = await usersModule.add({email, password, firstName, lastName})
-        sessions.createSession(req, {userId: userData.id})
-        send(res, {message: "logged in successfully!"})
+        await usersModule.add({email, password, firstName, lastName})
+        send(res, {message: "account created successfully!"})
 
     } catch ({message}) {
         send(res, {message, status: 401})
