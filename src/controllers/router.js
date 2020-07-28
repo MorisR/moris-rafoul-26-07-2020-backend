@@ -5,9 +5,11 @@ const messagesRoutes = require("./routes/messages")
 const authRoutes = require("./routes/auth")
 const requireLogin = require("./middleware/requireLogin")
 const loadUserIdFromSession = require("./middleware/loadUserIdFromSession")
+const updateSessionExpDate = require("./middleware/updateSessionExpDate")
 
 
 router.use(loadUserIdFromSession)
+router.use(updateSessionExpDate)
 
 
 const messagesRouter = express.Router();
