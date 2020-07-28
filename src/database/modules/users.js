@@ -36,7 +36,7 @@ exports.delete = async (userId) => {
 
 
 exports.validateCredentials = async (email, password) => {
-    const userData = await exports.get({email})
+    const userData = await users.get({email})
     if (!userData)
         throw new Error("user not found!")
 
