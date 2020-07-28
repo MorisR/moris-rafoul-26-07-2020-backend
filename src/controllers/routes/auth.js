@@ -1,5 +1,5 @@
 const {users: usersModule} = require("../../database/modules")
-const {send} = require("../../util/serverResponse");
+const send = require("../../util/serverResponse");
 const sessions = require("../../util/serverSessions");
 
 exports.login = async (req, res) => {
@@ -22,7 +22,7 @@ exports.logout =  async (req, res) =>{
 }
 exports.getCurrentUserData = async (req, res) => {
 
-    const userId = sessions.getSession(req).userId
+    const userId = req.userId
 
     try {
         const userData =await usersModule.get({userId})

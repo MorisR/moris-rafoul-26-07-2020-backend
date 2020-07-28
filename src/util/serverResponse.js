@@ -1,7 +1,7 @@
 
 
 
-exports.send= (res, {data, message,status = 200} )=>{
+module.exports = (res, {data, message,status = 200} )=>{
 
     res.status(status).json({
         status:status,

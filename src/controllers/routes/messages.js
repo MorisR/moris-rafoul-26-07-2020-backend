@@ -1,4 +1,4 @@
-const {send} = require("../../util/serverResponse");
+const send = require("../../util/serverResponse");
 const {messages} = require("../../database/modules")
 
 exports.getMessage = async (req, res) => {
@@ -46,7 +46,6 @@ exports.getSent = async (req, res) => {
 
     const userId = req.userId;
     const {count, offset} = req.query
-
     try {
         const data = await messages.getSent(userId, {count, offset})
         send(res, {data})
