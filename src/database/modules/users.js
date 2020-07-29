@@ -44,8 +44,6 @@ exports.validateCredentials = async (email, password, passwordComparer = (pass1,
     if (!await passwordComparer(password, userData.password))
         throw new Error("incorrect password!")
 
-
-    return filterUserData(userData)
 }
 exports.validateRegisterCredentials = async ({email, password, firstName, lastName}) => {
     const userData = await users.get({email})
