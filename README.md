@@ -1,11 +1,16 @@
 # moris-rafoul-26-07-2020 - backend
 
+## Installation
+1) clone the repo 
+2) install dependencies 
+    ```
+    npm install
+    ```
+3) add .env file to the root of the project
+    - you can do that by remaming the ".env_template" file in the root  directory and putting in the correct values
+    - read [".env file"](#40) for more info about each field in the .env file
 
-
-
-
-
-## available routes
+## Available Routes
 - messages routes
     - [get /messages/sent](https://github.com/MorisR/moris-rafoul-26-07-2020/issues/15)
     - [get /messages/received](https://github.com/MorisR/moris-rafoul-26-07-2020/issues/16)
