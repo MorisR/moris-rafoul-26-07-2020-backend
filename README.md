@@ -2,7 +2,7 @@
 
 ## Installation
 1) clone the repo 
-2) install dependencies 
+2) install dependencies by running 
     ```
     npm install
     ```
