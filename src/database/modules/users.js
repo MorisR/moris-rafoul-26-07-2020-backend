@@ -10,7 +10,9 @@ exports.get = async ({userId, email} = {}) => {
         throw new Error("user id or email address must be provided")
 
     const userData = await users.get({userId, email})
-    return filterUserData(userData)
+
+    if(userData)
+        return filterUserData(userData);
 }
 exports.update = async (userId, fieldsToUpdate) => {
 
@@ -61,14 +63,7 @@ exports.validateRegisterCredentials = async ({email, password, firstName, lastNa
 
 }
 
-function filterUserData(userData) {
+function filterUserData({email,firstName,lastName,id}={}) {
 
-    return {
-        email: userData.email,
-        firstName: userData.firstName,
-        lastName: userData.lastName,
-        id: userData.id,
-
-    }
-
+    return { email, firstName, lastName, id }
 }

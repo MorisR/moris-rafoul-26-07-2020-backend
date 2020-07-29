@@ -37,6 +37,7 @@ authRouter.post("/register",requireLoggedOut,authRoutes.register)
 authRouter.post("/deleteAccount",requireLogin,authRoutes.deleteAccount)
 router.use("/auth",authRouter)
 
+router.post("/users",requireLogin,authRoutes.getUser)
 
 
 router.use(errorHandlingRoutes.notFound)

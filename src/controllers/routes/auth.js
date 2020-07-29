@@ -7,8 +7,7 @@ exports.login = async (req, res) => {
 
     let {email, password} = req.body;
 
-    try
-    {
+    try {
         await usersModule.validateCredentials(email, password,hashing.compare)
         const userData = await usersModule.get({email})
         sessions.createSession(req, {userId: userData.id})
@@ -64,4 +63,18 @@ exports.deleteAccount = async (req,res)=>{
         send(res, {message, status: 401})
     }
 
+}
+exports.getUser = async (req, res) => {
+    let {email} = req.body;
+    try {
+        const userData = await usersModule.get({email})
+        const userNotFoundMessage = "user not found"
+        send(res,{
+            data:userData,
+            message: userData? undefined: userNotFoundMessage
+        })
+
+    } catch ({message}) {
+        send(res, {message, status: 401})
+    }
 }
