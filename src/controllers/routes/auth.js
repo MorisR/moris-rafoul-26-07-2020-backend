@@ -1,7 +1,7 @@
 const {users: usersModule} = require("../../database/modules")
 const send = require("../../util/serverResponse");
 const sessions = require("../../util/serverSessions");
-const hashPassword = require("../../util/hashPassword");
+const hashing = require("../../util/hashPassword");
 
 exports.login = async (req, res) => {
 
@@ -9,8 +9,7 @@ exports.login = async (req, res) => {
 
     try
     {
-        password = await hashPassword(password)
-        const userData = await usersModule.validateCredentials(email, password)
+        const userData = await usersModule.validateCredentials(email, password,hashing.compare)
         sessions.createSession(req, {userId: userData.id})
         send(res, {message: "logged in successfully!"})
 
@@ -42,7 +41,7 @@ exports.register = async (req, res) => {
 
     try {
         await usersModule.validateRegisterCredentials({email, password, firstName, lastName})
-        password = await hashPassword(password)
+        password = await hashing.hash(password)
         await usersModule.add({email, password, firstName, lastName})
         send(res, {message: "account created successfully!"})
 
