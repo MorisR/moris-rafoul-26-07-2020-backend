@@ -35,13 +35,15 @@ exports.delete = async (userId) => {
 }
 
 
-exports.validateCredentials = async (email, password) => {
+exports.validateCredentials = async (email, password, passwordComparer = (pass1, pass2) => pass1 === pass2) => {
     const userData = await users.get({email})
     if (!userData)
         throw new Error("user not found!")
 
-    if (userData.password !== password)
+
+    if (!await passwordComparer(password, userData.password))
         throw new Error("incorrect password!")
+
 
     return filterUserData(userData)
 }
