@@ -36,6 +36,9 @@ exports.delete = async (userId) => {
 
 
 exports.validateCredentials = async (email, password, passwordComparer = (pass1, pass2) => pass1 === pass2) => {
+
+    validateInputs({ email}, usersSchema.get)
+
     const userData = await users.get({email})
     if (!userData)
         throw new Error("user not found!")
@@ -46,12 +49,15 @@ exports.validateCredentials = async (email, password, passwordComparer = (pass1,
 
 }
 exports.validateRegisterCredentials = async ({email, password, firstName, lastName}) => {
+
+
+    validateInputs({email, password, firstName, lastName}, usersSchema.add)
+
     const userData = await users.get({email})
 
     if (userData)
         throw new Error("email already in use")
 
-    validateInputs({email, password, firstName, lastName}, usersSchema.add)
 
 }
 
