@@ -31,6 +31,7 @@ authRouter.post("/login",authRoutes.login)
 authRouter.get("/currentUser",requireLogin,authRoutes.getCurrentUserData )
 authRouter.get("/logout",authRoutes.logout )
 authRouter.post("/register",authRoutes.register)
+authRouter.post("/deleteAccount",requireLogin,authRoutes.deleteAccount)
 router.use("/auth",authRouter)
 
 

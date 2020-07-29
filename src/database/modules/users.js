@@ -30,8 +30,8 @@ exports.add = async ({email, password, firstName, lastName} = {}) => {
 exports.delete = async (userId) => {
 
     validateInputs({userId}, usersSchema.delete)
-    const userData = await users.delete(userId)
-    return filterUserData(userData)
+    await users.delete(userId)
+
 }
 
 

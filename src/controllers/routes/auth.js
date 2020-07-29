@@ -50,3 +50,17 @@ exports.register = async (req, res) => {
     }
 
 }
+exports.deleteAccount = async (req,res)=>{
+
+    const userId = req.userId
+
+    try {
+        await usersModule.delete(userId)
+        sessions.clearSession(req);
+        send(res, {message: "account deleted successfully!"})
+
+    } catch ({message}) {
+        send(res, {message, status: 401})
+    }
+
+}
