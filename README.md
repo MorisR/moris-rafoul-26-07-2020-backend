@@ -7,8 +7,8 @@
     npm install
     ```
 3) add .env file to the root of the project
-    - you can do that by remaming the ".env_template" file in the root  directory and putting in the correct values
-    - read [".env file"](#40) for more info about each field in the .env file
+    - you can do that by remaming the ".env_template" file in the root directory to ".env" and filling in the correct values
+    - read [".env file"](#40) for more info about the values and purpose of each field
 
 ## Available Routes
 - messages routes
