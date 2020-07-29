@@ -4,7 +4,10 @@ const router = express.Router();
 const messagesRoutes = require("./routes/messages")
 const authRoutes = require("./routes/auth")
 const errorHandlingRoutes = require("./routes/errorHandling")
+
 const requireLogin = require("./middleware/requireLogin")
+const requireLoggedOut = require("./middleware/requireLoggedOut")
+
 const loadUserIdFromSession = require("./middleware/loadUserIdFromSession")
 const updateSessionExpDate = require("./middleware/updateSessionExpDate")
 
@@ -27,10 +30,10 @@ router.use("/messages",requireLogin, messagesRouter)
 
 
 const authRouter = express.Router();
-authRouter.post("/login",authRoutes.login)
+authRouter.post("/login",requireLoggedOut,authRoutes.login)
 authRouter.get("/currentUser",requireLogin,authRoutes.getCurrentUserData )
-authRouter.get("/logout",authRoutes.logout )
-authRouter.post("/register",authRoutes.register)
+authRouter.get("/logout",requireLogin,authRoutes.logout )
+authRouter.post("/register",requireLoggedOut,authRoutes.register)
 authRouter.post("/deleteAccount",requireLogin,authRoutes.deleteAccount)
 router.use("/auth",authRouter)
 
