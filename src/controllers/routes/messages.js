@@ -100,3 +100,23 @@ exports.setTrashState = async (req, res) => {
     }
 
 }
+exports.setMarkAsRead = async (req, res) => {
+
+    const userId = req.userId;
+    let {messageId, isRead} = req.params
+
+    if (!["true", "false"].includes(isRead))
+        return send(res, {message: "bad request, incorrect route provided ", status: 400})
+
+    isRead = isRead === "true"
+
+
+    try {
+        await messages.setReadState(userId, messageId, isRead)
+        send(res, {message: isRead ? "marked as read!" : "marked as unread!"})
+
+    } catch ({message}) {
+        send(res, {message, status: 500})
+    }
+
+}

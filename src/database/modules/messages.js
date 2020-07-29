@@ -35,6 +35,12 @@ exports.setTrashState = async (userId,messageId,isTrash) => {
     validateInputs( {userId,messageId,state:isTrash}, messagesSchema.userId_messageId_boolState)
     return await messages.setTrashState(userId,messageId,isTrash);
 }
+exports.setReadState = async (userId,messageId,isRead) => {
+
+    validateInputs( {userId,messageId,state:isRead}, messagesSchema.userId_messageId_boolState)
+    return await messages.setReadState(userId,messageId,isRead);
+}
+
 exports.getInTrash = async (userId, {count, offset} = {}) => {
 
     validateInputs( {userId, props: {count, offset}}, messagesSchema.messageId_count_offset)

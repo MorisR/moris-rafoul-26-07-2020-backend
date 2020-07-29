@@ -3,8 +3,9 @@ const usersQuery = require("./users")
 
 
 const messageQueryToReturn = `messages.id, subject, message, "creationDate",
+        (select json_agg(row_to_json("messagesSettings")) from "messagesSettings" where "messageId" = messages.id and "userId" = $1 ) as messageSettings,
         (select json_build_object('id',id,'email', email,'firstName',"firstName",'lastName',"lastName")from users where users.id = receiver limit 1)   as receiver,
-       (select json_build_object('id',id,'email', email,'firstName',"firstName",'lastName',"lastName")from users where users.id = sender limit 1)   as sender
+        (select json_build_object('id',id,'email', email,'firstName',"firstName",'lastName',"lastName")from users where users.id = sender limit 1)   as sender
                        `
 
 
@@ -28,6 +29,11 @@ exports.setTrashState = async (userId, messageId,isTrash) => {
 
     await updateUserMessageSettingsFields(userId, messageId, {inTrash: isTrash, addedToTrashDate: new Date()})
 };
+exports.setReadState = async (userId, messageId,isRead) => {
+
+    await updateUserMessageSettingsFields(userId, messageId, {read: isRead, readDate: new Date()})
+};
+
 exports.delete = async (userId, messageId) => {
 
     await updateUserMessageSettingsFields(userId, messageId, {isDeleted: true})

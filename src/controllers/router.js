@@ -20,6 +20,7 @@ messagesRouter.get("/trash", messagesRoutes.getInTrash)
 messagesRouter.post("/",messagesRoutes.addMessage)
 messagesRouter.post("/delete/:messageId", messagesRoutes.deleteMessage)
 messagesRouter.post("/trash/:messageId/:isTrash",messagesRoutes.setTrashState)
+messagesRouter.post("/markAsRead/:messageId/:isRead",messagesRoutes.setMarkAsRead)
 messagesRouter.get("/:messageId", messagesRoutes.getMessage)
 router.use("/messages",requireLogin, messagesRouter)
 
