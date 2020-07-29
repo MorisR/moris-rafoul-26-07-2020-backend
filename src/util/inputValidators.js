@@ -53,6 +53,11 @@ const messagesSchema_userId_messageId = Joi.object({
     userId: idSchema.required(),
 
 })
+const messagesSchema_userId_messageId_boolState = Joi.object({
+    messageId: idSchema.required(),
+    userId: idSchema.required(),
+    state: Joi.boolean()
+})
 const messagesSchema_add = Joi.object({
     senderId: idSchema.required(),
     recipientEmail: Joi.string().email().required(),
@@ -64,6 +69,7 @@ const messagesSchema_add = Joi.object({
 
 exports.messagesSchema = {
     userId_messageId: messagesSchema_userId_messageId,
+    userId_messageId_boolState: messagesSchema_userId_messageId_boolState,
     add: messagesSchema_add,
     messageId_count_offset: messagesSchema_messageId_count_offset,
 }

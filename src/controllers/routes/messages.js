@@ -14,17 +14,16 @@ exports.getMessage = async (req, res) => {
     }
 
 }
-exports.addMessage = async (req,res) =>{
+exports.addMessage = async (req, res) => {
     const userId = req.userId;
-    const {subject,message,recipientEmail} = req.body;
+    const {subject, message, recipientEmail} = req.body;
 
     try {
-        const data = await messages.add(userId, {subject,message,recipientEmail})
+        const data = await messages.add(userId, {subject, message, recipientEmail})
         send(res, {data})
     } catch ({message}) {
         send(res, {message, status: 500})
     }
-
 
 
 }
@@ -61,7 +60,7 @@ exports.deleteMessage = async (req, res) => {
 
     try {
         await messages.delete(userId, messageId)
-        send(res, {message:"deleted successfully!"})
+        send(res, {message: "deleted successfully!"})
     } catch ({message}) {
         send(res, {message, status: 500})
     }
@@ -93,11 +92,7 @@ exports.setTrashState = async (req, res) => {
 
 
     try {
-        if (isTrash)
-            await messages.moveToTrash(userId, messageId)
-        else
-            await messages.removeFromTrash(userId, messageId)
-
+        await messages.setTrashState(userId, messageId, isTrash)
         send(res, {message: isTrash ? "added to trash!" : "removed from trash!"})
 
     } catch ({message}) {
