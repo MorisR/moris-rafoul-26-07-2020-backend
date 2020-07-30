@@ -26,7 +26,7 @@
     - [get /auth/logout](https://github.com/MorisR/moris-rafoul-26-07-2020-backend/issues/25)
     - [post /auth/register](https://github.com/MorisR/moris-rafoul-26-07-2020-backend/issues/27)
     - [post /auth/deleteAccount](https://github.com/MorisR/moris-rafoul-26-07-2020-backend/issues/29)
-
+    - [post /users](https://github.com/MorisR/moris-rafoul-26-07-2020-backend/issues/41)
 
 
 
