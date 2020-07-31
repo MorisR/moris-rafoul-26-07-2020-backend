@@ -14,7 +14,7 @@ exports.createSession = (req, toStoreInCookie = {}) => {
 
 }
 
-exports.clearSession = (req) => {
+        exports.clearSession = (req) => {
     req.session = null
 }
 
