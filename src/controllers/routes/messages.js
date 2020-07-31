@@ -20,7 +20,7 @@ exports.addMessage = async (req, res) => {
 
     try {
         const data = await messages.add(userId, {subject, message, recipientEmail})
-        send(res, {data})
+        send(res, {data,message:"Message sent successfully"})
     } catch ({message}) {
         send(res, {message, status: 500})
     }
