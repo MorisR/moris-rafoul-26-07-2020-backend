@@ -3,7 +3,7 @@ const usersQuery = require("./users")
 
 
 const messageQueryToReturn = `messages.id, subject, message, "creationDate",
-        (select json_agg(row_to_json("messagesSettings")) -> 0 from "messagesSettings" where "messageId" = messages.id and "userId" = $1  limit 1) as messageSettings,
+        (select json_agg(row_to_json("messagesSettings")) -> 0 from "messagesSettings" where "messageId" = messages.id and "userId" = $1  limit 1) as "messageSettings",
         (select json_build_object('id',id,'email', email,'firstName',"firstName",'lastName',"lastName")from users where users.id = receiver limit 1)   as receiver,
         (select json_build_object('id',id,'email', email,'firstName',"firstName",'lastName',"lastName")from users where users.id = sender limit 1)   as sender
                        `
