@@ -9,6 +9,18 @@
 3) add .env file to the root of the project
     - you can do that by remaming the ".env_template" file in the root directory to ".env" and filling in the correct values
     - read [".env file"](https://github.com/MorisR/moris-rafoul-26-07-2020-backend/issues/40) for more info about the values and purpose of each field
+4) initialize the postgres database by rinning the following command
+    ```
+    npm run buildDb
+    ```
+5) start the server using the followinig command
+    ```
+    npm start
+    or 
+    npm start dev
+    ```
+
+
 
 ## Available Routes
 - messages routes
