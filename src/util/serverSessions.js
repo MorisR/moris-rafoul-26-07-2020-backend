@@ -14,8 +14,10 @@ exports.createSession = (req, toStoreInCookie = {}) => {
 
 }
 
-        exports.clearSession = (req) => {
+exports.clearSession = (req, res) => {
     req.session = null
+    res.clearCookie("session")
+    res.clearCookie("session.sig")
 }
 
 exports.resetSessionAge = (req) => {
@@ -31,7 +33,7 @@ exports.hasSessionExpired = (req) => {
         return true;
 
     const sessionCreationDate = moment(req.session.creationTime)
-    sessionCreationDate.add(req.session.expDate,"millisecond")
+    sessionCreationDate.add(req.session.expDate, "millisecond")
 
     return sessionCreationDate.isBefore(moment.now())
 
@@ -45,6 +47,7 @@ sessionAgeInSeconds = parseInt(sessionAgeInSeconds)
 function generateSessionExpDate() {
     return moment.duration(sessionAgeInSeconds, "seconds").asMilliseconds()
 }
+
 function generateNowInMilliseconds() {
     return moment.duration(moment.now()).asMilliseconds()
 }

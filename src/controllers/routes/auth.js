@@ -19,7 +19,7 @@ exports.login = async (req, res) => {
 
 }
 exports.logout = async (req, res) => {
-    sessions.clearSession(req);
+    sessions.clearSession(req,res);
     send(res, {message: "logged out successfully!"})
 }
 exports.getCurrentUserData = async (req, res) => {
@@ -56,7 +56,7 @@ exports.deleteAccount = async (req,res)=>{
 
     try {
         await usersModule.delete(userId)
-        sessions.clearSession(req);
+        sessions.clearSession(req,res);
         send(res, {message: "account deleted successfully!"})
 
     } catch ({message}) {
