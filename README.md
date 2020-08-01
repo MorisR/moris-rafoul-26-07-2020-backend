@@ -20,7 +20,13 @@
     npm start dev
     ```
 
-
+### Used Technologies
+- express js
+- bcrypt
+- cookie-session 
+    - I would've rathered implementing my own sessions management implementation ( or using express sessions )
+- moment
+- pg
 
 ## Available Routes
 - messages routes
