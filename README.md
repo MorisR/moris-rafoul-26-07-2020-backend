@@ -1,5 +1,11 @@
 # moris-rafoul-26-07-2020 - backend
 
+## Important Notes 
+- In the most recent commit I thought I was working on a branch and I ended up pushing some commits directly to the branch 
+( I guess that what happens with lack of sleep.. ) so i had to revert some of the changes that were done (although they are not a code breaking changes)
+
+
+
 ## Installation
 1) clone the repo 
 2) install dependencies by running 
