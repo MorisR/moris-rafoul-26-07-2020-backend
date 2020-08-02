@@ -1,41 +1,54 @@
 const moment = require("moment")
 const {getAndRequireEnvVar} = require("./envCheck")
+var jwt = require('jsonwebtoken');
+const sessionSecret = getAndRequireEnvVar("COOKIE_SESSION_SECRET");
 
 
-exports.createSession = (req, toStoreInCookie = {}) => {
+exports.createSession = (res, toStoreInCookie = {}) => {
     const sessionExpDate = generateSessionExpDate()
-    req.session = {
-        ...req.session,
+    const sessionData = {
         ...toStoreInCookie,
         expDate: sessionExpDate,
         creationTime: generateNowInMilliseconds()
     }
-    req.sessionOptions.maxAge = sessionExpDate
-
+    const signed = jwt.sign(sessionData, sessionSecret);
+    res.cookie("session", signed , {maxAge : sessionExpDate});
 }
 
 exports.clearSession = (req, res) => {
-    req.session = null
-    res.clearCookie("session")
-    res.clearCookie("session.sig")
+    res.cookie("session", {} , {maxAge : 1});
+    res.clearCookie("session");
 }
 
-exports.resetSessionAge = (req) => {
-    req.session.creationTime = generateNowInMilliseconds()
-    req.sessionOptions.maxAge = generateSessionExpDate()
+exports.resetSessionAge = (req,res) => {
+    const sessionData = exports.getSession(req);
+    if(!sessionData)
+        return;
+    exports.createSession(res,sessionData)
 
 }
 
-exports.getSession = (req) => req.session;
+exports.getSession = (req) => {
+
+    try {
+
+        return jwt.verify(req.cookies.session, sessionSecret)
+    } catch(err) {
+        return {}
+    }
+
+}
 
 exports.hasSessionExpired = (req) => {
-    if (!req.session.expDate || !req.session.creationTime)
+
+    const cookieData = exports.getSession(req)
+    if (!cookieData.creationTime)
         return true;
 
-    const sessionCreationDate = moment(req.session.creationTime)
-    sessionCreationDate.add(req.session.expDate, "millisecond")
+    const sessionCreationDate = moment(cookieData.creationTime)
+    sessionCreationDate.add(cookieData.expDate, "millisecond")
 
-    return sessionCreationDate.isBefore(moment.now())
+    return sessionCreationDate.isBefore(moment())
 
 }
 
