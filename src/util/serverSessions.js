@@ -16,7 +16,7 @@ exports.createSession = (res, toStoreInCookie = {}) => {
 }
 
 exports.clearSession = (req, res) => {
-    res.cookie("session", {} , {maxAge : 1});
+    res.cookie("session", {} , {maxAge : 1,sameSite:"none",secure:true});
 
 }
 
