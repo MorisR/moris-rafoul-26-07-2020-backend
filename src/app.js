@@ -4,7 +4,6 @@ const serveFavicon = require('serve-favicon');
 const path = require('path');
 const helmet = require("helmet")
 const cookieParser = require("cookie-parser")
-const cookieSession = require('cookie-session')
 const cors = require('cors')
 const app = express()
 const router = require("./controllers/router")
@@ -25,6 +24,7 @@ app.use(cors({
     exposedHeaders: ["set-cookie"],
 }))
 
+
 app.use(nocache())
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }));
@@ -33,14 +33,6 @@ app.use(helmet())
 app.disable('x-powered-by');
 app.use(serveFavicon(path.join(__dirname,"..","public","favicon.png")))
 
-
-//setup cookie sessions
-const sessionSecret = getAndRequireEnvVar("COOKIE_SESSION_SECRET");
-app.use(cookieSession({
-    name: 'session',
-    secret:sessionSecret,
-    sameSite:"none",
-}))
 
 
 
