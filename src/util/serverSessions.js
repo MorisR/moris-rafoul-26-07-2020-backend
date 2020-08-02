@@ -16,7 +16,8 @@ exports.createSession = (req, toStoreInCookie = {}) => {
 
 exports.clearSession = (req, res) => {
     req.session = null
-
+    res.clearCookie("session")
+    res.clearCookie("session.sig")
     res.header("Set-Cookie","session=;session.sig=;")
 
 }
