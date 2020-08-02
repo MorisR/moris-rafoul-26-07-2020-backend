@@ -12,7 +12,7 @@ exports.createSession = (res, toStoreInCookie = {}) => {
         creationTime: generateNowInMilliseconds()
     }
     const signed = jwt.sign(sessionData, sessionSecret);
-    res.cookie("session", signed , {maxAge : sessionExpDate,sameSite:"lux",secure:true});
+    res.cookie("session", signed , {maxAge : sessionExpDate,sameSite:"none",secure:true});
 }
 
 exports.clearSession = (req, res) => {
