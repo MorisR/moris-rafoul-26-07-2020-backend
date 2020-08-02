@@ -1,7 +1,7 @@
 # moris-rafoul-26-07-2020 - backend
 ## Important Notes 
-- In the most recent commit I thought I was working on a branch, and I ended up pushing some commits directly to the master branch 
-( I guess that what happens with lack of sleep.. ) so I had to revert some changes that were done (although they are not a code breaking changes)
+- In the most recent commits had to revert some commands, thought I was working on a branch....
+(that's what happens when lack of sleep kicks in.. )
 
 
 
