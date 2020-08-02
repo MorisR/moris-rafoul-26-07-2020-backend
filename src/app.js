@@ -9,6 +9,7 @@ const app = express()
 const router = require("./controllers/router")
 const {getAndRequireEnvVar} = require("./util/envCheck")
 const nocache = require("nocache")
+const cookieSession = require("cookie-session")
 
 
 //setup cors
@@ -33,6 +34,13 @@ app.use(helmet())
 app.disable('x-powered-by');
 app.use(serveFavicon(path.join(__dirname,"..","public","favicon.png")))
 
+//setup cookie sessions
+const sessionSecret = getAndRequireEnvVar("COOKIE_SESSION_SECRET");
+app.use(cookieSession({
+    name: 'session',
+    secret:sessionSecret,
+    sameSite:"none",
+}))
 
 
 
