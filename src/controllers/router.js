@@ -12,8 +12,15 @@ const loadUserIdFromSession = require("./middleware/loadUserIdFromSession")
 const updateSessionExpDate = require("./middleware/updateSessionExpDate")
 
 
+app.get("/",(req,res)=>
+    res.send(`<h1>welcome to the backend!😊😎</h1>
+              <h3>more info on how to use the api could be found <a href='https://github.com/MorisR/moris-rafoul-26-07-2020-backend'>here</a>!</h3>`))
+
+
+
 router.use(loadUserIdFromSession)
 router.use(updateSessionExpDate)
+
 
 
 const messagesRouter = express.Router();
