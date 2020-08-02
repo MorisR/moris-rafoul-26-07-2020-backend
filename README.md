@@ -2,7 +2,7 @@
 
 ## Important Notes 
 - In the most recent commit I thought I was working on a branch and I ended up pushing some commits directly to the master branch 
-( I guess that what happens with lack of sleep.. ) so i had to revert some of the changes that were done (although they are not a code breaking changes)
+( I guess that what happens with lack of sleep.. ) so I had to revert some of the changes that were done (although they are not a code breaking changes)
 
 
 
