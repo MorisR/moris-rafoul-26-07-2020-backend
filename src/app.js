@@ -37,7 +37,6 @@ const sessionSecret = getAndRequireEnvVar("COOKIE_SESSION_SECRET");
 app.use(cookieSession({
     name: 'session',
     secret:sessionSecret,
-    sameSite:"none",
 }))
 
 
