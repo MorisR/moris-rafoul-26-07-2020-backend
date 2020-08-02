@@ -10,7 +10,7 @@ exports.login = async (req, res) => {
     try {
         await usersModule.validateCredentials(email, password,hashing.compare)
         const userData = await usersModule.get({email})
-        sessions.createSession(res, {userId: userData.id})
+        sessions.createSession(req, {userId: userData.id})
         send(res, {message: "logged in successfully!"})
 
     } catch ({message}) {

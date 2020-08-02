@@ -1,54 +1,41 @@
 const moment = require("moment")
 const {getAndRequireEnvVar} = require("./envCheck")
-var jwt = require('jsonwebtoken');
-const sessionSecret = getAndRequireEnvVar("COOKIE_SESSION_SECRET");
 
 
-exports.createSession = (res, toStoreInCookie = {}) => {
+exports.createSession = (req, toStoreInCookie = {}) => {
     const sessionExpDate = generateSessionExpDate()
-    const sessionData = {
+    req.session = {
+        ...req.session,
         ...toStoreInCookie,
         expDate: sessionExpDate,
         creationTime: generateNowInMilliseconds()
     }
-    const signed = jwt.sign(sessionData, sessionSecret);
-    res.cookie("session", signed , {maxAge : sessionExpDate});
+    req.sessionOptions.maxAge = sessionExpDate
+
 }
 
 exports.clearSession = (req, res) => {
-    res.cookie("session", {} , {maxAge : 1});
+    req.session = null
+    res.clearCookie("session")
+    res.clearCookie("session.sig")
+}
+
+exports.resetSessionAge = (req) => {
+    req.session.creationTime = generateNowInMilliseconds()
+    req.sessionOptions.maxAge = generateSessionExpDate()
 
 }
 
-exports.resetSessionAge = (req,res) => {
-    const sessionData = exports.getSession(req);
-    if(!sessionData)
-        return;
-    exports.createSession(res,sessionData)
-
-}
-
-exports.getSession = (req) => {
-
-    try {
-
-        return jwt.verify(req.cookies.session, sessionSecret)
-    } catch(err) {
-        return {}
-    }
-
-}
+exports.getSession = (req) => req.session;
 
 exports.hasSessionExpired = (req) => {
-
-    const cookieData = exports.getSession(req)
-    if (!cookieData.creationTime)
+    if (!req.session.expDate || !req.session.creationTime)
         return true;
 
-    const sessionCreationDate = moment(cookieData.creationTime)
-    sessionCreationDate.add(cookieData.expDate, "millisecond")
+    const sessionCreationDate = moment(req.session.creationTime)
+    sessionCreationDate.add(req.session.expDate, "millisecond")
 
-    return sessionCreationDate.isBefore(moment())
+    return sessionCreationDate.isBefore(moment.now())
 
 }
 
