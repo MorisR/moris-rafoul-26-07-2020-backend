@@ -15,10 +15,10 @@ exports.createSession = (req, toStoreInCookie = {}) => {
 }
 
 exports.clearSession = (req, res) => {
-    req.session.userId = null
-    req.session.expDate = null
-    req.session.creationTime = null
-    req.sessionOptions.maxAge = 0
+    req.session = null
+
+    res.header("Set-Cookie","session=;session.sig=;")
+
 }
 
 exports.resetSessionAge = (req) => {
