@@ -9,6 +9,7 @@ const cors = require('cors')
 const app = express()
 const router = require("./controllers/router")
 const {getAndRequireEnvVar} = require("./util/envCheck")
+const nocache = require("nocache")
 
 //setup cors
 app.use(cors({
@@ -23,7 +24,7 @@ app.use(cors({
     exposedHeaders: ["set-cookie"],
 }))
 
-
+app.use(nocache())
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser())
