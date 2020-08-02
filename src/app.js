@@ -4,10 +4,10 @@ const serveFavicon = require('serve-favicon');
 const path = require('path');
 const helmet = require("helmet")
 const cookieParser = require("cookie-parser")
+const cookieSession = require('cookie-session')
 const cors = require('cors')
 const app = express()
 const router = require("./controllers/router")
-const nocache = require("nocache")
 
 //setup cors
 app.use(cors({
@@ -23,7 +23,6 @@ app.use(cors({
 }))
 
 
-app.use(nocache())
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser())
