@@ -7,13 +7,12 @@ exports.get = async ({userId, email} = {}) => {
         select * from users 
         where ${userId ? "id = $1" : ""} 
         ${userId && email ? "and" : ""}
-        ${email ? `email = ${userId ? "$2" : "$1"}` : ""} 
+        ${email ? `email ilike ${userId ? "$2" : "$1"}` : ""} 
 `, [userId, email].filter(element => element));
 
 
     if (queryResult.rowCount)
-        if (queryResult.rows[0]["isDeleted"] === false)
-            return queryResult.rows[0]
+        return queryResult.rows[0]
 
 };
 exports.delete = async (userId) => {
@@ -70,7 +69,7 @@ exports.add = async ({email, password, firstName, lastName} = {}) => {
         insert into users (email, password, "firstName", "lastName")
         values ($1, $2, $3, $4)
         returning *
-    `, [email, password, firstName, lastName].filter(x => x))
+    `, [email.toLowerCase(), password, firstName, lastName].filter(x => x))
 
 
     return queryResult.rows[0]
