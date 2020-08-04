@@ -53,7 +53,7 @@ exports.add = async (senderId, {recipientEmail, subject, message}) => {
 
 
     const recipientData = await usersQuery.get({email: recipientEmail})
-    if (!recipientData)
+    if (!recipientData || recipientData.isDeleted)
         throw new Error("recipient not found")
 
 
