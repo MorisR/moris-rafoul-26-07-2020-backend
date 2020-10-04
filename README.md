@@ -1,7 +1,7 @@
 # moris-rafoul-26-07-2020 - backend
 ## Important Notes 
 - In the most recent commits had to revert some commands, thought I was working on a branch....
-(that's what happens when lack of sleep kicks in.. )
+(that's what happens when lack of sleep kicks in... )
 
 
 
